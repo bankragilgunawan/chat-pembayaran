@@ -97,6 +97,8 @@ window.tampilkanKonfirmasi = function () {
   if (!keyword || !jawaban) return;
   document.getElementById("previewKeyword").innerText = keyword;
   document.getElementById("previewJawaban").innerText = jawaban;
+  const previewBox = document.getElementById("previewGambar");
+  previewBox.innerHTML = uploadedImageURL ? `<img src="${uploadedImageURL}" style="max-width:100%;margin-top:10px;border-radius:10px">` : `<i>(Tanpa gambar)</i>`;
   document.getElementById("konfirmasiModal").style.display = "flex";
 };
 
@@ -204,36 +206,44 @@ window.hapusData = function (key) {
     }
   </style>
 </head>
-<body><div class="login" id="login">
+<body>
+<div class="login" id="login">
   <h3>Pilih Mode</h3>
   <button onclick="loginAs('admin')">Masuk sebagai Admin</button>
   <button onclick="loginAs('user')">Masuk sebagai Karyawan</button>
-</div><div class="chat" id="chat">
+</div>
+<div class="chat" id="chat">
   <h3>Asisten Pembayaran</h3>
   <input type="text" id="inputUser" placeholder="Tulis pertanyaan / ID pelanggan...">
   <button onclick="jawab()">Kirim</button>
   <div class="output-box" id="output"></div>
-</div><div class="admin-panel" id="adminPanel">
+</div>
+<div class="admin-panel" id="adminPanel">
   <h4>Tambah Data Baru</h4>
   <input type="text" id="keywordInput" placeholder="Kata kunci (misal: ID123)">
   <input type="text" id="jawabanInput" placeholder="Jawaban (misal: Sudah dibayar...)" >
   <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
-  <button onclick="tampilkanKonfirmasi()">Tinjau & Simpan</button>  <h4>Data Tersimpan:</h4>
+  <button onclick="tampilkanKonfirmasi()">Tinjau & Simpan</button>
+  <h4>Data Tersimpan:</h4>
   <div id="listData"></div>
-</div><div class="modal" id="konfirmasiModal">
+</div>
+<div class="modal" id="konfirmasiModal">
   <div class="modal-content preview-box">
     <h4>Informasi</h4>
     <p><b id="previewKeyword"></b><br><span id="previewJawaban"></span></p>
+    <div id="previewGambar" style="margin-top:10px"></div>
     <div class="btn-row">
       <button onclick="simpanDataBaru()">✅</button>
       <button class="secondary" onclick="batalSimpan()">❌</button>
     </div>
   </div>
-</div><div class="modal" id="pinModal">
+</div>
+<div class="modal" id="pinModal">
   <div class="modal-content">
     <h4>Masukkan PIN Admin</h4>
     <input type="password" id="pinInput" placeholder="PIN Admin">
     <button id="pinSubmit">Lanjut</button>
   </div>
-</div></body>
+</div>
+</body>
 </html>
