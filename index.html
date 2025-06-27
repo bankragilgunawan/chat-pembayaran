@@ -1,239 +1,31 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat Pembayaran</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <script type="module">
-    const firebaseConfig = {
-      apiKey: "AIzaSyCESyZFqvyx4JTWsQfwBMSrsE-uKHiUyjk",
-      authDomain: "chat-pembayaran.firebaseapp.com",
-      databaseURL: "https://chat-pembayaran-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "chat-pembayaran",
-      storageBucket: "chat-pembayaran.appspot.com",
-      messagingSenderId: "743572493310",
-      appId: "1:743572493310:web:3a345f370200f58e5166af"
-    };import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const dbRef = ref(db, "faq");
-const storage = getStorage(app);
-
-let dataFAQ = [];
-let uploadedImageURL = "";
-
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("login").style.display = "flex";
-});
-
-window.loginAs = function (mode) {
-  if (mode === "admin") {
-    document.getElementById("pinModal").style.display = "flex";
-    document.getElementById("pinSubmit").onclick = () => {
-      const pin = document.getElementById("pinInput").value;
-      if (pin === "1234") {
-        document.getElementById("pinModal").style.display = "none";
-        document.getElementById("login").style.display = "none";
-        document.getElementById("chat").style.display = "block";
-        document.getElementById("adminPanel").style.display = "block";
-      } else {
-        alert("PIN salah!");
-      }
-    };
-    return;
-  }
-  document.getElementById("login").style.display = "none";
-  document.getElementById("chat").style.display = "block";
-};
-
-onValue(dbRef, (snapshot) => {
-  const data = snapshot.val();
-  dataFAQ = [];
-  document.getElementById("listData").innerHTML = "";
-  for (let key in data) {
-    dataFAQ.push({ key, keyword: data[key].keyword.toLowerCase(), jawaban: data[key].jawaban, image: data[key].image || "" });
-    const card = document.createElement("div");
-    card.className = "faq-card";
-    card.innerHTML = `<b>Informasi:</b><br>${data[key].keyword} → ${data[key].jawaban}
-      ${data[key].image ? `<div><img src="${data[key].image}" style="max-width:100%;margin-top:10px;border-radius:10px"></div>` : ""}
-      <div class="btn-row">
-        <button onclick="editData('${key}', '${data[key].keyword}', '${data[key].jawaban}')">✏️</button>
-        <button onclick="hapusData('${key}')">❌</button>
-      </div>`;
-    document.getElementById("listData").appendChild(card);
-  }
-});
-
-window.jawab = function () {
-  const input = document.getElementById("inputUser").value.toLowerCase();
-  let hasil = "❌ Maaf, data tidak ditemukan.";
-  let gambar = "";
-  for (let item of dataFAQ) {
-    if (input.includes(item.keyword)) {
-      hasil = "✅ " + item.jawaban;
-      gambar = item.image;
-      break;
-    }
-  }
-  const outputBox = document.getElementById("output");
-  outputBox.innerHTML = hasil + (gambar ? `<br><img src="${gambar}" style="max-width:100%;margin-top:10px;border-radius:10px">` : "");
-  outputBox.style.display = "block";
-};
-
-window.handleImageUpload = async function (event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const storageRef = sRef(storage, 'images/' + Date.now() + '_' + file.name);
-  await uploadBytes(storageRef, file);
-  uploadedImageURL = await getDownloadURL(storageRef);
-};
-
-window.tampilkanKonfirmasi = function () {
-  const keyword = document.getElementById("keywordInput").value.trim();
-  const jawaban = document.getElementById("jawabanInput").value.trim();
-  if (!keyword || !jawaban) return;
-  document.getElementById("previewKeyword").innerText = keyword;
-  document.getElementById("previewJawaban").innerText = jawaban;
-  document.getElementById("konfirmasiModal").style.display = "flex";
-};
-
-window.simpanDataBaru = function () {
-  const keyword = document.getElementById("keywordInput").value.trim();
-  const jawaban = document.getElementById("jawabanInput").value.trim();
-  push(dbRef, { keyword, jawaban, image: uploadedImageURL });
-  document.getElementById("keywordInput").value = "";
-  document.getElementById("jawabanInput").value = "";
-  document.getElementById("imageInput").value = "";
-  uploadedImageURL = "";
-  document.getElementById("konfirmasiModal").style.display = "none";
-};
-
-window.batalSimpan = function () {
-  document.getElementById("konfirmasiModal").style.display = "none";
-};
-
-window.editData = function (key, keyword, jawaban) {
-  const newKeyword = prompt("Edit kata kunci:", keyword);
-  const newJawaban = prompt("Edit jawaban:", jawaban);
-  if (newKeyword !== null && newJawaban !== null) {
-    update(ref(db, `faq/${key}`), {
-      keyword: newKeyword,
-      jawaban: newJawaban
-    });
-  }
-};
-
-window.hapusData = function (key) {
-  const konfirmasi = confirm("Yakin ingin menghapus data ini?");
-  if (konfirmasi) {
-    remove(ref(db, `faq/${key}`));
-  }
-};
-
-  </script>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
-      padding: 20px;
-      background: #f1f4f9;
-    }
-    .login, .chat, .admin-panel, .modal {
-      max-width: 500px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-    }
-    input, button {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    button {
-      background: #4CAF50;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button.secondary {
-      background: #ccc;
-      color: #333;
-    }
-    .btn-row {
+      font-family: sans-serif;
       display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 10px;
-    }
-    .faq-card, .output-box, .preview-box {
-      background: #eef;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 20px;
-    }
-    #output {
-      display: none;
-      margin-top: 15px;
-    }
-    ul { padding-left: 0; list-style: none; }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
       justify-content: center;
       align-items: center;
+      height: 100vh;
+      background: #f2f2f2;
     }
-    .modal-content {
+    .box {
       background: white;
-      padding: 20px;
+      padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      width: 90%;
-      max-width: 400px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       text-align: center;
     }
   </style>
 </head>
-<body><div class="login" id="login">
-  <h3>Pilih Mode</h3>
-  <button onclick="loginAs('admin')">Masuk sebagai Admin</button>
-  <button onclick="loginAs('user')">Masuk sebagai Karyawan</button>
-</div><div class="chat" id="chat">
-  <h3>Asisten Pembayaran</h3>
-  <input type="text" id="inputUser" placeholder="Tulis pertanyaan / ID pelanggan...">
-  <button onclick="jawab()">Kirim</button>
-  <div class="output-box" id="output"></div>
-</div><div class="admin-panel" id="adminPanel">
-  <h4>Tambah Data Baru</h4>
-  <input type="text" id="keywordInput" placeholder="Kata kunci (misal: ID123)">
-  <input type="text" id="jawabanInput" placeholder="Jawaban (misal: Sudah dibayar...)" >
-  <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
-  <button onclick="tampilkanKonfirmasi()">Tinjau & Simpan</button>  <h4>Data Tersimpan:</h4>
-  <div id="listData"></div>
-</div><div class="modal" id="konfirmasiModal">
-  <div class="modal-content preview-box">
-    <h4>Informasi</h4>
-    <p><b id="previewKeyword"></b><br><span id="previewJawaban"></span></p>
-    <div class="btn-row">
-      <button onclick="simpanDataBaru()">✅</button>
-      <button class="secondary" onclick="batalSimpan()">❌</button>
-    </div>
+<body>
+  <div class="box">
+    <h1>🎉 Selamat datang!</h1>
+    <p>Ini halaman awal aplikasi <strong>Chat Pembayaran</strong>.</p>
   </div>
-</div><div class="modal" id="pinModal">
-  <div class="modal-content">
-    <h4>Masukkan PIN Admin</h4>
-    <input type="password" id="pinInput" placeholder="PIN Admin">
-    <button id="pinSubmit">Lanjut</button>
-  </div>
-</div></body>
+</body>
 </html>
